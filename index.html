@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Confronto Partite Calcio</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+  
+  <div class="container">
+    <h1>PRONOSTICO CALCIO AI</h1>
+    <div class="team-buttons">
+      <div class="team-slot">
+        <button class="select-button" data-team="1">INSERISCI SQUADRA</button>
+        <div id="selected-name-1" class="selected-name">Nessuna squadra selezionata</div>
+      </div>
+      <div class="team-slot">
+        <button class="select-button" data-team="2">INSERISCI SQUADRA</button>
+        <div id="selected-name-2" class="selected-name">Nessuna squadra selezionata</div>
+      </div>
+    </div>
+    
+
+
+      <!-- Bottone ESAMINA centrato -->
+      <!-- Colonna centrale per il pulsante -->
+      <div class="middle-column">
+        <div class="button-area">
+          <button id="search-button">
+            <span class="main-label">ESAMINA</span><br>
+            
+          </button>
+        </div>
+      </div> 
+      <div id="loading-indicator" style="display:none; text-align:center; font-size: 1.2rem; color: #007bff; margin-top: 15px;">
+        ⏳ Caricamento dati in corso...
+      </div>
+    <div class="search-area">
+      <!-- Colonna Squadra 1 -->
+      <div class="search-column">
+        <div class="search-box">  
+          <div id="team-name-1" class="team-name">Nessuna squadra selezionata</div>
+          <img id="team-logo-1" class="team-logo" />
+          <button id="standings-button-1" class="standings-button" style="display:none;">CLASSIFICA 📊</button>
+          <div id="standings-info-1" class="standings-info"></div>
+          <div id="team-summary-1" class="match-summary"></div>
+        </div>
+        <div id="goal-summary-1" class="goal-summary"></div>
+        <div id="goal-conceded-summary-1" class="goal-summary"></div>
+        <div id="total-goals-summary-1" class="goal-summary"></div>
+      </div>
+      <!-- Colonna Squadra 2 -->
+      <div class="search-column">
+        <div class="search-box">
+          <div id="team-name-2" class="team-name">Nessuna squadra selezionata</div>
+          <img id="team-logo-2" class="team-logo" />
+          <button id="standings-button-2" class="standings-button" style="display:none;">CLASSIFICA 📊</button>
+          <div id="standings-info-2" class="standings-info"></div>
+          <div id="team-summary-2" class="match-summary"></div>
+        </div>
+        <div id="goal-summary-2" class="goal-summary"></div>
+        <div id="goal-conceded-summary-2" class="goal-summary"></div>
+        <div id="total-goals-summary-2" class="goal-summary"></div>
+      </div>
+    </div>
+
+    <div class="results-area">
+      <div class="results-column" id="results-1"></div>
+      <div class="results-column" id="results-2"></div>
+    </div>
+
+    <!-- Modale -->
+    <div id="modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>SELEZIONA SQUADRA</h2>
+        <select id="competition-select">
+          <option value="">Seleziona Campionato</option>
+        </select>
+        <select id="team-select">
+          <option value="">Seleziona Squadra</option>
+        </select>
+        <button id="confirm-selection">Conferma</button>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
