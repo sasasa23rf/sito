@@ -729,26 +729,30 @@ label {
 
   /* Contenitori per gli annunci laterali */
   .ads-container {
-    position: absolute;          /* Posiziona il contenitore */
-    top: 0;
-    bottom: 0;
-    width: 300px;                /* Imposta una larghezza adeguata */
-    height: auto;                /* Altezza automatica */
-    min-height: 100px;           /* Imposta un'altezza minima */
+    position: fixed;           /* Fissiamo il contenitore degli annunci ai lati della pagina */
+    top: 50%;                  /* Posizioniamo gli annunci verticalmente al centro della pagina */
+    width: 300px;              /* Larghezza degli annunci */
+    height: auto;              /* Altezza automatica in base al contenuto dell'annuncio */
+    min-height: 100px;         /* Altezza minima per il contenitore */
     background-color: transparent; /* Rende il contenitore invisibile */
-    display: block;              /* Assicurati che il contenitore sia visibile */
+    z-index: 1000;             /* Assicura che gli annunci siano sopra altri contenuti */
 }
 
-
-.left {
-    left: 0;                     /* Posiziona il contenitore a sinistra */
+/* Annuncio a sinistra */
+.ads-container.left {
+    left: 0;                   /* Posiziona il contenitore a sinistra */
+    transform: translateY(-50%);  /* Centra verticalmente */
 }
 
-.right {
-    right: 0;                    /* Posiziona il contenitore a destra */
+/* Annuncio a destra */
+.ads-container.right {
+    right: 0;                  /* Posiziona il contenitore a destra */
+    transform: translateY(-50%);  /* Centra verticalmente */
 }
 
+/* Impostazioni degli annunci */
 .adsbygoogle {
-    width: 100%;                 /* Ogni annuncio occupa tutta la larghezza del contenitore */
-    height: auto;                /* Altezza automatica, in base al contenuto dell'annuncio */
+    width: 100%;               /* Ogni annuncio occupa tutta la larghezza del contenitore */
+    height: auto;              /* Altezza automatica */
 }
+
