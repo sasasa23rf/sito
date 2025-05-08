@@ -4,11 +4,21 @@ html, body {
     padding: 0;
     font-family: Arial, sans-serif;
     background-color: white;
-    box-sizing: border-box; /* Assicura che padding e border siano inclusi nella larghezza/altezza totale */
+    box-sizing: border-box; /* Assicura che padding e border siano inclusi nella larghezza totale */
     width: 100%;
-    overflow-x: hidden; /* Previene lo scroll orizzontale */
+    overflow-x: hidden; /* Evita lo scroll orizzontale */
     font-size: 16px; /* Imposta una base per le unità rem */
 }
+
+
+body {
+    display: flex;
+    justify-content: center; /* Centra orizzontalmente */
+    align-items: flex-start; /* Centra verticalmente */
+    flex-direction: column; /* Se vuoi che gli elementi siano disposti in colonna */
+}
+
+
 
 *, *::before, *::after {
     box-sizing: inherit; /* Eredita box-sizing da html/body */
@@ -405,19 +415,15 @@ label {
         margin-top: 10px;
         margin-bottom: 30px;
         text-align: center;
-        font-size: 4rem;
+        font-size: 3rem;
         text-transform: uppercase;
         line-height: 1.2;
         letter-spacing: 2px;
       
-        /* 🎨 Gradiente animato */
-        background: linear-gradient(270deg, #7f00ff, #e100ff, #007bff, #00c851);
-        background-size: 800% 800%;
-        -webkit-text-fill-color: transparent;
-        animation: animatedGradient 6s ease infinite;
+       
       
         /* 💡 Glow simile ai pulsanti */
-        text-shadow: 0 0 10px rgba(127, 0, 255, 0.3);
+        text-shadow: 0 0 1px rgba(127, 0, 255, 0.3);
       }
       
       
@@ -432,11 +438,12 @@ label {
      .middle-column { /* Applica a tutte le colonne quando impilate */
         flex-basis: auto;
         width: 100%; /* Occupa tutta la larghezza */
-        max-width: 350px; /* Limita larghezza massima su mobile */
+        
     }
 
     .middle-column {
        order: 1; /* Sposta il bottone ESAMINA dopo il primo pulsante squadra */
+       margin-top: 10px;
     }
 
     .search-column:nth-of-type(1) { /* Primo blocco squadra */
@@ -548,7 +555,7 @@ label {
 /* 🖥️ Schermi molto grandi (es. monitor desktop) - Sopra 1200px */
 @media (min-width: 1200px) {
     h1 {
-        font-size: 3.5rem; /* Leggermente ridotto rispetto a prima per coerenza */
+        font-size: 5rem; /* Leggermente ridotto rispetto a prima per coerenza */
     }
     .container {
         padding: 30px; /* Più padding */
@@ -715,3 +722,33 @@ label {
     100% { background-position: 0% 50%; }
   }
   
+
+
+
+
+
+  /* Contenitori per gli annunci laterali */
+  .ads-container {
+    position: absolute;          /* Posiziona il contenitore */
+    top: 0;
+    bottom: 0;
+    width: 300px;                /* Imposta una larghezza adeguata */
+    height: auto;                /* Altezza automatica */
+    min-height: 100px;           /* Imposta un'altezza minima */
+    background-color: transparent; /* Rende il contenitore invisibile */
+    display: block;              /* Assicurati che il contenitore sia visibile */
+}
+
+
+.left {
+    left: 0;                     /* Posiziona il contenitore a sinistra */
+}
+
+.right {
+    right: 0;                    /* Posiziona il contenitore a destra */
+}
+
+.adsbygoogle {
+    width: 100%;                 /* Ogni annuncio occupa tutta la larghezza del contenitore */
+    height: auto;                /* Altezza automatica, in base al contenuto dell'annuncio */
+}
