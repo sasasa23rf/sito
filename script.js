@@ -306,6 +306,8 @@ window.matchInsights.recentMatches.team2 = data.team2Matches.slice(0, 50);
       document.getElementById('team-logo-2').style.display = 'none';
       document.getElementById('standings-button-1').style.display = 'none';
       document.getElementById('standings-button-2').style.display = 'none';
+      document.getElementById('ai-result-box').innerHTML = '';
+
 
 
 
@@ -496,6 +498,8 @@ document.getElementById('team-name-1').textContent = teamName1;
 document.getElementById('team-name-2').textContent = teamName2;
 document.getElementById('standings-button-1').style.display = 'none';
 document.getElementById('standings-button-2').style.display = 'none';
+document.getElementById('ai-result-box').innerHTML = '';
+
 
 
 
@@ -614,10 +618,11 @@ function renderMatchSummary(teamName, matches, elementId) {
     }
   }
   
-
-
 function renderMatches(team, matches) {
     matches = [...matches].sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate));
+if (!window.geminiMatchHistory) window.geminiMatchHistory = {};
+window.geminiMatchHistory[team] = [];
+
     let html = `
         <div style="text-align: center; margin-bottom: 10px;">
             <div style="font-size: 1.3em; font-weight: bold;">Ultime 50 Partite</div>
@@ -630,6 +635,16 @@ function renderMatches(team, matches) {
         const awayTeam = match.awayTeam.name;
         const homeGoals = match.score.fullTime.home;
         const awayGoals = match.score.fullTime.away;
+
+
+window.geminiMatchHistory[team].push({
+  date,
+  homeTeam,
+  awayTeam,
+  result: `${homeGoals}-${awayGoals}`
+});
+
+
         const isHome = homeTeam.toLowerCase().includes(team.toLowerCase());
         const teamGoals = isHome ? homeGoals : awayGoals;
         const oppGoals = isHome ? awayGoals : homeGoals;
@@ -2300,6 +2315,181 @@ function getExactScoreGaps(matches, resultSet) {
 
     return result;
 }
+
+
+
+// pulsante AI
+// pulsante AI
+function estraiRisultatiGemini(text) {
+  const underOverMatch = text.match(/\b(Under|Over)\s?2[.,]?5\b/i);
+  const golNoGolMatch = text.match(/\b(Gol|No\s?Gol)\b/i);
+  const risultatiEsatti = [...text.matchAll(/\b\d{1,2}[-:x]\d{1,2}\b/g)].map(m => m[0]);
+
+  return {
+    underOver: underOverMatch?.[0] || '—',
+    golnogol: golNoGolMatch?.[0] || '—',
+    risultatiEsatti: risultatiEsatti.slice(0, 2)
+  };
+}
+
+
+const attachVisualizzaAIListener = () => {
+  const visualizzaBtn = Array.from(document.querySelectorAll('button'))
+    .find(btn => btn.textContent.trim().toUpperCase() === 'VISUALIZZA');
+
+  if (!visualizzaBtn || visualizzaBtn.dataset.aiAttached === 'true') return;
+
+  visualizzaBtn.dataset.aiAttached = 'true';
+
+  visualizzaBtn.addEventListener('click', () => {
+    setTimeout(() => {
+      const { teamName1, teamName2 } = window.loadedTeamNames || {};
+      const {
+        recentMatches,
+        underOver05Summary,
+        underOver15Summary,
+        underOver25Summary,
+        underOver35Summary,
+        goalNoGoalSummary
+      } = window.matchInsights || {};
+
+      if (
+        !teamName1 || !teamName2 ||
+        typeof vittorie1 === 'undefined' || typeof vittorie2 === 'undefined'
+      ) {
+        console.warn("❌ Dati AI non ancora disponibili.");
+        return;
+      }
+
+      const recent30 = Array.isArray(recentMatches) ? recentMatches.slice(0, 30) : [];
+      const risultatiRecenti = recent30.map(m => {
+        const home = m.score?.fullTime?.home ?? '-';
+        const away = m.score?.fullTime?.away ?? '-';
+        return `${home}-${away}`;
+      }).join(', ');
+
+const teamMatches1 = window.geminiMatchHistory?.[teamName1] || [];
+const teamMatches2 = window.geminiMatchHistory?.[teamName2] || [];
+
+const formattedMatches1 = teamMatches1.map(m => `${m.date} - ${m.homeTeam} vs ${m.awayTeam}: ${m.result}`).join('\n');
+const formattedMatches2 = teamMatches2.map(m => `${m.date} - ${m.homeTeam} vs ${m.awayTeam}: ${m.result}`).join('\n');
+
+const prompt = `
+Confronta le due squadre: "${teamName1}" e "${teamName2}".
+
+Statistiche (ultime 50 partite) per "${teamName1}":
+- Vittorie: ${vittorie1}
+- Pareggi: ${pareggi1}
+- Sconfitte: ${sconfitte1}
+
+Statistiche (ultime 50 partite) per "${teamName2}":
+- Vittorie: ${vittorie2}
+- Pareggi: ${pareggi2}
+- Sconfitte: ${sconfitte2}
+
+Ultime 50 partite giocate da "${teamName1}":
+${formattedMatches1}
+
+Ultime 50 partite giocate da "${teamName2}":
+${formattedMatches2}
+
+Analizza attentamente questi dati.
+Dimmi:
+
+1. Se la partita tra "${teamName1}" e "${teamName2}" ha più probabilità di finire con **Under 2.5** o **Over 2.5**.
+2. Il pronostico più probabile tra **gol/Nogol** cioè se segnano entrambe le squadre nella partita, oppure se almeno una non segna.
+3. Due possibili **risultati esatti** probabili.
+
+⚠️ Non fornire altri dati o analisi oltre questi punti. Sii diretto e basato solo sui dati forniti.
+attenzione a non fare questo errore, non puoi ad esempio dare un pronostico 1 e poi mettere come risultato 0-0 e 0-1, perchè sarebbe
+incoerente. Quindi fai una buona analisi, si precisa.
+`;
+
+       document.getElementById('ai-loader').style.display = 'block';
+      fetch('https://calcio.onrender.com/ask-gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt })
+      })
+
+
+        .then(res => res.ok ? res.json() : Promise.reject(res))
+       .then(data => {
+  const reply = data.reply || "⚠️ Nessuna risposta generata.";
+
+  const risultati = estraiRisultatiGemini(reply);
+  const tabella = `
+    <table style="margin: 10px auto; border-collapse: collapse; font-size: 1.2em; text-align: center;">
+      <tr>
+        <th style="padding: 8px 16px; border: 1px solid #999;">Under/Over 2.5</th>
+        <th style="padding: 8px 16px; border: 1px solid #999;">Gol/Nogol</th>
+        <th style="padding: 8px 16px; border: 1px solid #999;">Risultati Esatti</th>
+      </tr>
+      <tr>
+        <td style="padding: 8px 16px; border: 1px solid #999;">${risultati.underOver}</td>
+        <td style="padding: 8px 16px; border: 1px solid #999;">${risultati.golnogol || '—'}</td>
+        <td style="padding: 8px 16px; border: 1px solid #999;">${risultati.risultatiEsatti.join(' / ') || '—'}</td>
+      </tr>
+    </table>
+  `;
+
+  const aiBox = document.createElement('div');
+  aiBox.style.margin = '60px auto';
+  aiBox.style.padding = '20px';
+  aiBox.style.maxWidth = '900px';
+  aiBox.style.background = '#fff8e1';
+  aiBox.style.border = '2px solid #ff9800';
+  aiBox.style.borderRadius = '12px';
+  aiBox.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+  aiBox.style.fontSize = '1.1rem';
+  aiBox.style.color = '#333';
+
+  aiBox.innerHTML = `
+  <h2 style="text-align:center; color:#e65100;">🧠 Risposta AI</h2>
+  ${tabella}
+  <details style="display:none;">
+    <summary>Prompt</summary>
+    <pre>${prompt}</pre>
+  </details>
+  <p style="display:none;">${reply.replace(/\n/g, '<br>')}</p>
+`;
+
+
+  const boxTarget = document.getElementById('ai-result-box');
+boxTarget.innerHTML = ''; // pulisci eventuali risposte precedenti
+boxTarget.appendChild(aiBox);
+document.getElementById('ai-loader').style.display = 'none';
+
+
+})
+
+        .catch(err => {
+          console.error("Errore chiamata Gemini:", err);
+        });
+    }, 300);
+  });
+};
+
+const observer = new MutationObserver(() => attachVisualizzaAIListener());
+observer.observe(document.body, { childList: true, subtree: true });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
