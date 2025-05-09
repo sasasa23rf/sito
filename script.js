@@ -6,16 +6,266 @@ let logoImage1 = null;
 let logoImage2 = null;
 
 
+// 🧠 variabile underOver05Summary
+window.matchInsights = {
+    underOver05Summary: {team1: null,team2: null},
+    underOver15Summary: { team1: null, team2: null },
+    underOver25Summary: { team1: null, team2: null },
+    underOver35Summary: { team1: null, team2: null },
+    goalNoGoalSummary: { team1: null, team2: null }, 
+    recentMatches: {team1: [],team2: []},
+    standings: { team1: null, team2: null } 
+  };
+
+
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.getElementById('modal');
     const closeBtn = document.querySelector('.close');
     const competitionSelect = document.getElementById('competition-select');
     const teamSelect = document.getElementById('team-select');
     const confirmBtn = document.getElementById('confirm-selection');
-
     const team1NameDisplay = document.getElementById('team-name-1');
     const team2NameDisplay = document.getElementById('team-name-2');
    
+document.getElementById('view-button').addEventListener('click', () => {
+  const { teamName1, teamName2 } = window.loadedTeamNames;
+  const data = window.loadedTeamData;
+
+  renderMatchSummary(teamName1, data.team1Matches, 'team-summary-1');
+  renderMatchSummary(teamName2, data.team2Matches, 'team-summary-2');
+
+  document.getElementById('results-1').innerHTML = renderMatches(teamName1, data.team1Matches);
+  document.getElementById('results-2').innerHTML = renderMatches(teamName2, data.team2Matches);
+
+  document.getElementById('results-1').style.display = 'block';
+  document.getElementById('results-2').style.display = 'block';
+  document.getElementById('team-name-1').style.display = 'block';
+  document.getElementById('team-name-2').style.display = 'block';
+
+  document.getElementById('view-button').style.display = 'none';
+  document.getElementById('search-button').style.display = 'inline-block';
+  document.getElementById('search-button').disabled = true;
+
+
+
+
+// 🔁 TUTTO IL TUO CODICE ORIGINALE QUI (NON TOCCARE NULLA)
+document.getElementById('team-name-1').style.display = 'block';
+document.getElementById('team-name-2').style.display = 'block';
+
+
+
+
+// Riepilogo V/X/P
+const resultStats1 = calculateMatchResults(data.team1Matches, teamName1);
+const resultStats2 = calculateMatchResults(data.team2Matches, teamName2);
+
+
+
+const total1 = resultStats1.win + resultStats1.draw + resultStats1.loss;
+const total2 = resultStats2.win + resultStats2.draw + resultStats2.loss;
+
+vittorie1 = total1 ? (resultStats1.win / total1) * 100 : 0;
+pareggi1 = total1 ? (resultStats1.draw / total1) * 100 : 0;
+sconfitte1 = total1 ? (resultStats1.loss / total1) * 100 : 0;
+
+vittorie2 = total2 ? (resultStats2.win / total2) * 100 : 0;
+pareggi2 = total2 ? (resultStats2.draw / total2) * 100 : 0;
+sconfitte2 = total2 ? (resultStats2.loss / total2) * 100 : 0;
+
+
+
+// Gol segnati
+const goalCounts1 = analyzeGoalCounts(data.team1Matches, teamName1);
+const goalCounts2 = analyzeGoalCounts(data.team2Matches, teamName2);
+displayGoalSummary(goalCounts1, teamName1, document.getElementById('goal-summary-1'), data.team1Matches);
+displayGoalSummary(goalCounts2, teamName2, document.getElementById('goal-summary-2'), data.team2Matches);
+
+// ➕ Ora inseriamo la tabella V/X/P DOPO i gol segnati (così non viene sovrascritta)
+displayMatchResultSummary(resultStats1, teamName1, document.getElementById('goal-summary-1'));
+displayMatchResultSummary(resultStats2, teamName2, document.getElementById('goal-summary-2'));
+
+// Gol subiti
+const concededCounts1 = analyzeGoalsConceded(data.team1Matches, teamName1);
+const concededCounts2 = analyzeGoalsConceded(data.team2Matches, teamName2);
+displayGoalConcededSummary(concededCounts1, teamName1, document.getElementById('goal-conceded-summary-1'), data.team1Matches);
+displayGoalConcededSummary(concededCounts2, teamName2, document.getElementById('goal-conceded-summary-2'), data.team2Matches);
+
+// Gol totali
+const totalGoals1 = analyzeTotalGoals(data.team1Matches);
+const totalGoals2 = analyzeTotalGoals(data.team2Matches);
+displayTotalGoalsSummary(totalGoals1, teamName1, document.getElementById('total-goals-summary-1'));
+displayTotalGoalsSummary(totalGoals2, teamName2, document.getElementById('total-goals-summary-2'));
+
+// Risultati esatti
+const exact1 = getExactScoreFrequencies(data.team1Matches);
+const exact2 = getExactScoreFrequencies(data.team2Matches);       
+displayExactScoresGrid(exact1, teamName1, document.getElementById('total-goals-summary-1'));
+displayExactScoresGrid(exact2, teamName2, document.getElementById('total-goals-summary-2'));
+
+
+//under 0,5
+const underOverStats1 = getUnderOver05Summary(data.team1Matches);
+const underOverStats2 = getUnderOver05Summary(data.team2Matches);
+
+displayUnderOver05Table(underOverStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayUnderOver05Table(underOverStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+
+//under 1,5
+const underOver15Stats1 = getUnderOver15Summary(data.team1Matches);
+const underOver15Stats2 = getUnderOver15Summary(data.team2Matches);
+
+displayUnderOver15Table(underOver15Stats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayUnderOver15Table(underOver15Stats2, teamName2, document.getElementById('total-goals-summary-2'));
+//under 2,5
+const underOver25Stats1 = getUnderOver25Summary(data.team1Matches);
+const underOver25Stats2 = getUnderOver25Summary(data.team2Matches);
+
+displayUnderOver25Table(underOver25Stats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayUnderOver25Table(underOver25Stats2, teamName2, document.getElementById('total-goals-summary-2'));
+//under 3,5
+const underOver35Stats1 = getUnderOver35Summary(data.team1Matches);
+const underOver35Stats2 = getUnderOver35Summary(data.team2Matches);
+
+displayUnderOver35Table(underOver35Stats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayUnderOver35Table(underOver35Stats2, teamName2, document.getElementById('total-goals-summary-2'));
+//gol no gol
+const goalNoGoalStats1 = getGoalNoGoalSummary(data.team1Matches);
+const goalNoGoalStats2 = getGoalNoGoalSummary(data.team2Matches);
+
+displayGoalNoGoalTable(goalNoGoalStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayGoalNoGoalTable(goalNoGoalStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//1x + under1,5 ecc
+const comboStats1 = getDoubleChanceUnderOver15(data.team1Matches, teamName1);
+const comboStats2 = getDoubleChanceUnderOver15(data.team2Matches, teamName2);
+
+displayDoubleChanceUnderOver15Table(comboStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayDoubleChanceUnderOver15Table(comboStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//1x + under2,5 ecc
+
+const combo25Stats1 = getDoubleChanceUnderOver25(data.team1Matches, teamName1);
+const combo25Stats2 = getDoubleChanceUnderOver25(data.team2Matches, teamName2);
+
+displayDoubleChanceUnderOver25Table(combo25Stats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayDoubleChanceUnderOver25Table(combo25Stats2, teamName2, document.getElementById('total-goals-summary-2'));
+//1x + under3,5 ecc
+const combo35Stats1 = getDoubleChanceUnderOver35(data.team1Matches, teamName1);
+const combo35Stats2 = getDoubleChanceUnderOver35(data.team2Matches, teamName2);
+
+displayDoubleChanceUnderOver35Table(combo35Stats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayDoubleChanceUnderOver35Table(combo35Stats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//1x + gol ecc
+const comboGoalStats1 = getDoubleChanceGoalNoGoal(data.team1Matches, teamName1);
+const comboGoalStats2 = getDoubleChanceGoalNoGoal(data.team2Matches, teamName2);
+
+displayDoubleChanceGoalNoGoalTable(comboGoalStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayDoubleChanceGoalNoGoalTable(comboGoalStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//1 + under1,5 ecc
+const fixedComboStats1 = getFixedResultUnderOverStats(data.team1Matches);
+const fixedComboStats2 = getFixedResultUnderOverStats(data.team2Matches);
+
+displayFixedResultUnderOverTable(fixedComboStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayFixedResultUnderOverTable(fixedComboStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//1 + gol ecc
+const fixedResultGoalStats1 = getFixedResultGoalNoGoalStats(data.team1Matches);
+const fixedResultGoalStats2 = getFixedResultGoalNoGoalStats(data.team2Matches);
+
+displayFixedResultGoalNoGoalTable(fixedResultGoalStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayFixedResultGoalNoGoalTable(fixedResultGoalStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//tris + under1,5ecc
+const tripleStats1 = getTripleComboStats(data.team1Matches);
+const tripleStats2 = getTripleComboStats(data.team2Matches);
+
+displayTripleComboTable(tripleStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayTripleComboTable(tripleStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//tris + under2,5ecc
+
+const tripleStats25_1 = getTripleComboStats25(data.team1Matches);
+const tripleStats25_2 = getTripleComboStats25(data.team2Matches);
+
+displayTripleComboTable25(tripleStats25_1, teamName1, document.getElementById('total-goals-summary-1'));
+displayTripleComboTable25(tripleStats25_2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//tris + under3,5ecc
+const tripleStats35_1 = getTripleComboStats35(data.team1Matches);
+const tripleStats35_2 = getTripleComboStats35(data.team2Matches);
+
+displayTripleComboTable35(tripleStats35_1, teamName1, document.getElementById('total-goals-summary-1'));
+displayTripleComboTable35(tripleStats35_2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//tris secco + under1,5ecc
+const fixedCombo15_1 = getFixedComboStats15(data.team1Matches);
+const fixedCombo15_2 = getFixedComboStats15(data.team2Matches);
+
+displayFixedComboTable15(fixedCombo15_1, teamName1, document.getElementById('total-goals-summary-1'));
+displayFixedComboTable15(fixedCombo15_2, teamName2, document.getElementById('total-goals-summary-2'));
+
+//tris secco + under2,5ecc
+const fixedCombo25_1 = getFixedComboStats25(data.team1Matches);
+const fixedCombo25_2 = getFixedComboStats25(data.team2Matches);
+
+displayFixedComboTable25(fixedCombo25_1, teamName1, document.getElementById('total-goals-summary-1'));
+displayFixedComboTable25(fixedCombo25_2, teamName2, document.getElementById('total-goals-summary-2'));
+//tris secco + under3,5ecc
+const fixedCombo35_1 = getFixedComboStats35(data.team1Matches);
+const fixedCombo35_2 = getFixedComboStats35(data.team2Matches);
+
+displayFixedComboTable35(fixedCombo35_1, teamName1, document.getElementById('total-goals-summary-1'));
+displayFixedComboTable35(fixedCombo35_2, teamName2, document.getElementById('total-goals-summary-2'));
+//pari dispari
+const evenOddStats1 = getEvenOddStats(data.team1Matches);
+const evenOddStats2 = getEvenOddStats(data.team2Matches);
+
+displayEvenOddTable(evenOddStats1, teamName1, document.getElementById('total-goals-summary-1'));
+displayEvenOddTable(evenOddStats2, teamName2, document.getElementById('total-goals-summary-2'));
+
+
+//tabella distanza risultati esatti
+
+const resultSet = [
+"1-0", "0-0", "0-1", "0-4", "4-0", "2-5",
+"2-0", "1-1", "0-2", "1-4", "4-1", "3-5",
+"2-1", "2-2", "1-2", "2-4", "4-2", "4-5",
+"3-0", "3-3", "0-3", "3-4", "4-3", "5-2",
+"3-1", "4-4", "1-3", "0-5", "5-0", "5-3",
+"3-2", "5-5", "2-3", "1-5", "5-1", "5-4"
+];
+
+const gaps1 = getExactScoreGaps(data.team1Matches, resultSet);
+const gaps2 = getExactScoreGaps(data.team2Matches, resultSet);
+
+displayExactScoreGapsTable(gaps1, teamName1, document.getElementById('total-goals-summary-1'));
+displayExactScoreGapsTable(gaps2, teamName2, document.getElementById('total-goals-summary-2'));
+
+
+
+
+// Serie risultati
+renderMatchSummary(teamName1, data.team1Matches, 'team-summary-1');
+renderMatchSummary(teamName2, data.team2Matches, 'team-summary-2');
+
+// Storico partite
+document.getElementById('results-1').innerHTML = renderMatches(teamName1, data.team1Matches);
+document.getElementById('results-2').innerHTML = renderMatches(teamName2, data.team2Matches);
+window.matchInsights.recentMatches.team1 = data.team1Matches.slice(0, 50);
+window.matchInsights.recentMatches.team2 = data.team2Matches.slice(0, 50);
+
+
+
+});
 
     fetch('https://calcio.onrender.com/teams-by-competition')
         .then(res => res.json())
@@ -33,6 +283,8 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             selectedTeamSlot = button.dataset.team;
             modal.style.display = 'block';
+            document.getElementById('search-button').disabled = false;
+
             // 🧹 PULIZIA COMPLETA
         document.getElementById('results-1').innerHTML = '';
         document.getElementById('results-2').innerHTML = '';
@@ -116,16 +368,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
         const loadingElement = document.getElementById('loading-indicator');
         loadingElement.style.display = 'block'; // 👈 MOSTRA IL CARICAMENTO
-    
-
-
-
-
-
-
-
-
-
 
         const teamId1 = team1NameDisplay.dataset.id;
         const compId1 = team1NameDisplay.dataset.competitionId;
@@ -141,6 +383,8 @@ fetch(`https://calcio.onrender.com/standings/${compId1}`)
   .then(data => {
     const entry = data.standings[0].table.find(e => e.team.id.toString() === teamId1);
     const fullTable = data.standings[0].table;
+    window.matchInsights.standings.team1 = fullTable;
+
 
     if (entry) {
       const logo1 = document.getElementById('team-logo-1');
@@ -188,6 +432,8 @@ fetch(`https://calcio.onrender.com/standings/${compId2}`)
   .then(data => {
     const entry = data.standings[0].table.find(e => e.team.id.toString() === teamId2);
     const fullTable = data.standings[0].table;
+    window.matchInsights.standings.team2 = fullTable;
+
 
     if (entry) {
       const logo2 = document.getElementById('team-logo-2');
@@ -225,11 +471,6 @@ fetch(`https://calcio.onrender.com/standings/${compId2}`)
   });
 
 
-        
-
-
-
-
 // 🧹 PULISCI TUTTO PRIMA DI CARICARE NUOVI DATI
 document.getElementById('results-1').innerHTML = '';
 document.getElementById('results-2').innerHTML = '';
@@ -259,291 +500,27 @@ document.getElementById('standings-button-2').style.display = 'none';
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         fetch(`https://calcio.onrender.com/get-matches-dual?teamName1=${encodeURIComponent(teamName1)}&teamName2=${encodeURIComponent(teamName2)}`)
             .then(res => res.json())
             .then(data => {
-                // 🔁 TUTTO IL TUO CODICE ORIGINALE QUI (NON TOCCARE NULLA)
-                document.getElementById('team-name-1').style.display = 'block';
-                document.getElementById('team-name-2').style.display = 'block';
-                document.getElementById('results-1').style.display = 'block';
-                document.getElementById('results-2').style.display = 'block';
-     
-        
-    
-        // Riepilogo V/X/P
-        const resultStats1 = calculateMatchResults(data.team1Matches, teamName1);
-        const resultStats2 = calculateMatchResults(data.team2Matches, teamName2);
+                
 
 
 
-        const total1 = resultStats1.win + resultStats1.draw + resultStats1.loss;
-const total2 = resultStats2.win + resultStats2.draw + resultStats2.loss;
+// 👉 Salva i dati per uso posticipato
+window.loadedTeamData = data;
+window.loadedTeamNames = { teamName1, teamName2 };
 
-vittorie1 = total1 ? (resultStats1.win / total1) * 100 : 0;
-pareggi1 = total1 ? (resultStats1.draw / total1) * 100 : 0;
-sconfitte1 = total1 ? (resultStats1.loss / total1) * 100 : 0;
-
-vittorie2 = total2 ? (resultStats2.win / total2) * 100 : 0;
-pareggi2 = total2 ? (resultStats2.draw / total2) * 100 : 0;
-sconfitte2 = total2 ? (resultStats2.loss / total2) * 100 : 0;
-
-        
-    
-        // Gol segnati
-        const goalCounts1 = analyzeGoalCounts(data.team1Matches, teamName1);
-        const goalCounts2 = analyzeGoalCounts(data.team2Matches, teamName2);
-        displayGoalSummary(goalCounts1, teamName1, document.getElementById('goal-summary-1'), data.team1Matches);
-        displayGoalSummary(goalCounts2, teamName2, document.getElementById('goal-summary-2'), data.team2Matches);
-    
-        // ➕ Ora inseriamo la tabella V/X/P DOPO i gol segnati (così non viene sovrascritta)
-        displayMatchResultSummary(resultStats1, teamName1, document.getElementById('goal-summary-1'));
-        displayMatchResultSummary(resultStats2, teamName2, document.getElementById('goal-summary-2'));
-    
-        // Gol subiti
-        const concededCounts1 = analyzeGoalsConceded(data.team1Matches, teamName1);
-        const concededCounts2 = analyzeGoalsConceded(data.team2Matches, teamName2);
-        displayGoalConcededSummary(concededCounts1, teamName1, document.getElementById('goal-conceded-summary-1'), data.team1Matches);
-        displayGoalConcededSummary(concededCounts2, teamName2, document.getElementById('goal-conceded-summary-2'), data.team2Matches);
-    
-        // Gol totali
-        const totalGoals1 = analyzeTotalGoals(data.team1Matches);
-        const totalGoals2 = analyzeTotalGoals(data.team2Matches);
-        displayTotalGoalsSummary(totalGoals1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayTotalGoalsSummary(totalGoals2, teamName2, document.getElementById('total-goals-summary-2'));
-    
-        // Risultati esatti
-        const exact1 = getExactScoreFrequencies(data.team1Matches);
-        const exact2 = getExactScoreFrequencies(data.team2Matches);       
-        displayExactScoresGrid(exact1, document.getElementById('total-goals-summary-1'));
-        displayExactScoresGrid(exact2, document.getElementById('total-goals-summary-2'));
-
-        //under 0,5
-        const underOverStats1 = getUnderOver05Summary(data.team1Matches);
-        const underOverStats2 = getUnderOver05Summary(data.team2Matches);
-        
-        displayUnderOver05Table(underOverStats1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayUnderOver05Table(underOverStats2, teamName2, document.getElementById('total-goals-summary-2'));
+// 👉 Mostra il bottone VISUALIZZA e nasconde ESAMINA
+document.getElementById('search-button').style.display = 'none';
+document.getElementById('view-button').style.display = 'inline-block';
 
 
-        //under 1,5
-        const underOver15Stats1 = getUnderOver15Summary(data.team1Matches);
-        const underOver15Stats2 = getUnderOver15Summary(data.team2Matches);
-        
-        displayUnderOver15Table(underOver15Stats1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayUnderOver15Table(underOver15Stats2, teamName2, document.getElementById('total-goals-summary-2'));
-        //under 2,5
-        const underOver25Stats1 = getUnderOver25Summary(data.team1Matches);
-        const underOver25Stats2 = getUnderOver25Summary(data.team2Matches);
-        
-        displayUnderOver25Table(underOver25Stats1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayUnderOver25Table(underOver25Stats2, teamName2, document.getElementById('total-goals-summary-2'));
-        //under 3,5
-        const underOver35Stats1 = getUnderOver35Summary(data.team1Matches);
-        const underOver35Stats2 = getUnderOver35Summary(data.team2Matches);
-        
-        displayUnderOver35Table(underOver35Stats1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayUnderOver35Table(underOver35Stats2, teamName2, document.getElementById('total-goals-summary-2'));
-        //gol no gol
-        const goalNoGoalStats1 = getGoalNoGoalSummary(data.team1Matches);
-        const goalNoGoalStats2 = getGoalNoGoalSummary(data.team2Matches);
-        
-        displayGoalNoGoalTable(goalNoGoalStats1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayGoalNoGoalTable(goalNoGoalStats2, teamName2, document.getElementById('total-goals-summary-2'));
-        
-        //1x + under1,5 ecc
-        const comboStats1 = getDoubleChanceUnderOver15(data.team1Matches, teamName1);
-        const comboStats2 = getDoubleChanceUnderOver15(data.team2Matches, teamName2);
-        
-        displayDoubleChanceUnderOver15Table(comboStats1, teamName1, document.getElementById('total-goals-summary-1'));
-        displayDoubleChanceUnderOver15Table(comboStats2, teamName2, document.getElementById('total-goals-summary-2'));
-        
-      //1x + under2,5 ecc
-
-      const combo25Stats1 = getDoubleChanceUnderOver25(data.team1Matches, teamName1);
-      const combo25Stats2 = getDoubleChanceUnderOver25(data.team2Matches, teamName2);
-      
-      displayDoubleChanceUnderOver25Table(combo25Stats1, teamName1, document.getElementById('total-goals-summary-1'));
-      displayDoubleChanceUnderOver25Table(combo25Stats2, teamName2, document.getElementById('total-goals-summary-2'));
-      //1x + under3,5 ecc
-      const combo35Stats1 = getDoubleChanceUnderOver35(data.team1Matches, teamName1);
-      const combo35Stats2 = getDoubleChanceUnderOver35(data.team2Matches, teamName2);
-      
-      displayDoubleChanceUnderOver35Table(combo35Stats1, teamName1, document.getElementById('total-goals-summary-1'));
-      displayDoubleChanceUnderOver35Table(combo35Stats2, teamName2, document.getElementById('total-goals-summary-2'));
-      
-      //1x + gol ecc
-      const comboGoalStats1 = getDoubleChanceGoalNoGoal(data.team1Matches, teamName1);
-      const comboGoalStats2 = getDoubleChanceGoalNoGoal(data.team2Matches, teamName2);
-      
-      displayDoubleChanceGoalNoGoalTable(comboGoalStats1, teamName1, document.getElementById('total-goals-summary-1'));
-      displayDoubleChanceGoalNoGoalTable(comboGoalStats2, teamName2, document.getElementById('total-goals-summary-2'));
-      
-     //1 + under1,5 ecc
-      const fixedComboStats1 = getFixedResultUnderOverStats(data.team1Matches);
-      const fixedComboStats2 = getFixedResultUnderOverStats(data.team2Matches);
-      
-      displayFixedResultUnderOverTable(fixedComboStats1, teamName1, document.getElementById('total-goals-summary-1'));
-      displayFixedResultUnderOverTable(fixedComboStats2, teamName2, document.getElementById('total-goals-summary-2'));
-       
-      //1 + gol ecc
-      const fixedResultGoalStats1 = getFixedResultGoalNoGoalStats(data.team1Matches);
-      const fixedResultGoalStats2 = getFixedResultGoalNoGoalStats(data.team2Matches);
-
-     displayFixedResultGoalNoGoalTable(fixedResultGoalStats1, teamName1, document.getElementById('total-goals-summary-1'));
-     displayFixedResultGoalNoGoalTable(fixedResultGoalStats2, teamName2, document.getElementById('total-goals-summary-2'));
-
-    //tris + under1,5ecc
-     const tripleStats1 = getTripleComboStats(data.team1Matches);
-     const tripleStats2 = getTripleComboStats(data.team2Matches);
-     
-     displayTripleComboTable(tripleStats1, teamName1, document.getElementById('total-goals-summary-1'));
-     displayTripleComboTable(tripleStats2, teamName2, document.getElementById('total-goals-summary-2'));
-     
-//tris + under2,5ecc
-
-const tripleStats25_1 = getTripleComboStats25(data.team1Matches);
-const tripleStats25_2 = getTripleComboStats25(data.team2Matches);
-
-displayTripleComboTable25(tripleStats25_1, teamName1, document.getElementById('total-goals-summary-1'));
-displayTripleComboTable25(tripleStats25_2, teamName2, document.getElementById('total-goals-summary-2'));
-
-//tris + under3,5ecc
-const tripleStats35_1 = getTripleComboStats35(data.team1Matches);
-const tripleStats35_2 = getTripleComboStats35(data.team2Matches);
-
-displayTripleComboTable35(tripleStats35_1, teamName1, document.getElementById('total-goals-summary-1'));
-displayTripleComboTable35(tripleStats35_2, teamName2, document.getElementById('total-goals-summary-2'));
-
-//tris secco + under1,5ecc
-const fixedCombo15_1 = getFixedComboStats15(data.team1Matches);
-const fixedCombo15_2 = getFixedComboStats15(data.team2Matches);
-
-displayFixedComboTable15(fixedCombo15_1, teamName1, document.getElementById('total-goals-summary-1'));
-displayFixedComboTable15(fixedCombo15_2, teamName2, document.getElementById('total-goals-summary-2'));
-
-//tris secco + under2,5ecc
-const fixedCombo25_1 = getFixedComboStats25(data.team1Matches);
-const fixedCombo25_2 = getFixedComboStats25(data.team2Matches);
-
-displayFixedComboTable25(fixedCombo25_1, teamName1, document.getElementById('total-goals-summary-1'));
-displayFixedComboTable25(fixedCombo25_2, teamName2, document.getElementById('total-goals-summary-2'));
-//tris secco + under3,5ecc
-const fixedCombo35_1 = getFixedComboStats35(data.team1Matches);
-const fixedCombo35_2 = getFixedComboStats35(data.team2Matches);
-
-displayFixedComboTable35(fixedCombo35_1, teamName1, document.getElementById('total-goals-summary-1'));
-displayFixedComboTable35(fixedCombo35_2, teamName2, document.getElementById('total-goals-summary-2'));
-//pari dispari
-const evenOddStats1 = getEvenOddStats(data.team1Matches);
-const evenOddStats2 = getEvenOddStats(data.team2Matches);
-
-displayEvenOddTable(evenOddStats1, teamName1, document.getElementById('total-goals-summary-1'));
-displayEvenOddTable(evenOddStats2, teamName2, document.getElementById('total-goals-summary-2'));
-
-
-//tabella distanza risultati esatti
-
-const resultSet = [
-    "1-0", "0-0", "0-1", "0-4", "4-0", "2-5",
-    "2-0", "1-1", "0-2", "1-4", "4-1", "3-5",
-    "2-1", "2-2", "1-2", "2-4", "4-2", "4-5",
-    "3-0", "3-3", "0-3", "3-4", "4-3", "5-2",
-    "3-1", "4-4", "1-3", "0-5", "5-0", "5-3",
-    "3-2", "5-5", "2-3", "1-5", "5-1", "5-4"
-];
-
-const gaps1 = getExactScoreGaps(data.team1Matches, resultSet);
-const gaps2 = getExactScoreGaps(data.team2Matches, resultSet);
-
-displayExactScoreGapsTable(gaps1, teamName1, document.getElementById('total-goals-summary-1'));
-displayExactScoreGapsTable(gaps2, teamName2, document.getElementById('total-goals-summary-2'));
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-        // Serie risultati
-        renderMatchSummary(teamName1, data.team1Matches, 'team-summary-1');
-        renderMatchSummary(teamName2, data.team2Matches, 'team-summary-2');
-    
-        // Storico partite
-        document.getElementById('results-1').innerHTML = renderMatches(teamName1, data.team1Matches);
-        document.getElementById('results-2').innerHTML = renderMatches(teamName2, data.team2Matches);
     })
     .finally(() => {
         document.getElementById('loading-indicator').style.display = 'none';
     });
-    
-   
-    
-    
-    
+  
     });
     
 });
@@ -603,31 +580,40 @@ function analyzeTotalGoals(matches) {
 function renderMatchSummary(teamName, matches, elementId) {
     const container = document.getElementById(elementId);
     container.innerHTML = '';
-
-    // Ordina le partite dalla più recente alla più vecchia
+  
     const sortedMatches = [...matches].sort((a, b) => new Date(b.utcDate) - new Date(a.utcDate));
-
-    // Prende le ultime 50 partite e le inverte per mostrare la più recente a sinistra
-    sortedMatches.slice(0, 50).forEach(match => {
-
-        const isHome = match.homeTeam.name.toLowerCase().includes(teamName.toLowerCase());
-        const isAway = match.awayTeam.name.toLowerCase().includes(teamName.toLowerCase());
-        const homeGoals = match.score.fullTime.home;
-        const awayGoals = match.score.fullTime.away;
-        const teamGoals = isHome ? homeGoals : awayGoals;
-        const oppGoals = isHome ? awayGoals : homeGoals;
-
-        let result = '', className = '';
-        if (teamGoals > oppGoals) { result = 'V'; className = 'win'; }
-        else if (teamGoals < oppGoals) { result = 'P'; className = 'loss'; }
-        else { result = 'X'; className = 'draw'; }
-
-        const div = document.createElement('div');
-        div.textContent = result;
-        div.className = `result ${className}`;
-        container.appendChild(div);
+    const maxMatches = 50;
+    const actualMatches = sortedMatches.slice(0, maxMatches);
+  
+    actualMatches.forEach(match => {
+      const isHome = match.homeTeam.name.toLowerCase().includes(teamName.toLowerCase());
+      const isAway = match.awayTeam.name.toLowerCase().includes(teamName.toLowerCase());
+      const homeGoals = match.score.fullTime.home;
+      const awayGoals = match.score.fullTime.away;
+      const teamGoals = isHome ? homeGoals : awayGoals;
+      const oppGoals = isHome ? awayGoals : homeGoals;
+  
+      let result = '', className = '';
+      if (teamGoals > oppGoals) { result = 'V'; className = 'win'; }
+      else if (teamGoals < oppGoals) { result = 'P'; className = 'loss'; }
+      else { result = 'X'; className = 'draw'; }
+  
+      const div = document.createElement('div');
+      div.textContent = result;
+      div.className = `result ${className}`;
+      container.appendChild(div);
     });
-}
+  
+    // Aggiungi blocchi vuoti se ci sono meno di 50 partite
+    const missing = maxMatches - actualMatches.length;
+    for (let i = 0; i < missing; i++) {
+      const spacer = document.createElement('div');
+      spacer.className = 'result empty'; // Classe "vuota" per mantenere dimensioni
+      spacer.style.opacity = '0';
+      container.appendChild(spacer);
+    }
+  }
+  
 
 
 function renderMatches(team, matches) {
@@ -663,6 +649,30 @@ function renderMatches(team, matches) {
         `;
     });
     return html;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 function getExactScoreFrequencies(matches) {
@@ -676,58 +686,100 @@ function getExactScoreFrequencies(matches) {
     return scoreMap;
 }
 
-function displayGoalSummary(goalCounts, teamName, targetElement) {
+function displayGoalSummary(goalCounts, teamName, targetElement, matches) {
+
     const total = Object.values(goalCounts).reduce((a, b) => a + b, 0);
     if (total === 0) return;
-    let tableHtml = `
-      <div style="text-align: center; margin-bottom: 10px;">
+  
+    let logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+  
+    let html = `
+      <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.4em; font-weight: bold; color: #444;">Distribuzione Gol Segnati</div>
       </div>
-    <table><tr><th>Gol</th><th>Qtà</th><th>% Uscita</th></tr>`;
+      <table><tr><th>Gol</th><th>Qtà</th><th>% Uscita</th></tr>
+    `;
+  
     for (const key in goalCounts) {
-        const count = goalCounts[key];
-        const percent = ((count / total) * 100).toFixed(1) + '%';
-        tableHtml += `<tr><td>${key}</td><td>${count}</td><td>${percent}</td></tr>`;
+      const count = goalCounts[key];
+      const percent = ((count / total) * 100).toFixed(1) + '%';
+      html += `<tr><td>${key}</td><td>${count}</td><td>${percent}</td></tr>`;
     }
-    tableHtml += `<tr><td><strong>TOT.</strong></td><td><strong>${total}</strong></td><td><strong>100%</strong></td></tr></table>`;
-    targetElement.insertAdjacentHTML('beforeend', tableHtml);
-}
+  
+    html += `<tr><td><strong>TOT.</strong></td><td><strong>${total}</strong></td><td><strong>100%</strong></td></tr></table>`;
+  
+    targetElement.insertAdjacentHTML('beforeend', html);
 
-function displayGoalConcededSummary(concededCounts, teamName, targetElement) {
+  }
+  
+
+  function displayGoalConcededSummary(concededCounts, teamName, targetElement) {
     const total = Object.values(concededCounts).reduce((a, b) => a + b, 0);
     if (total === 0) return;
-    let tableHtml = `
-      <div style="text-align: center; margin-bottom: 10px;">
-        <div style="font-size: 1.4em; font-weight: bold; color: #d9534f;">Distribuzione Gol Subiti</div>
+
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
+    let html = `
+      <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
+        <div style="font-size: 1.4em; font-weight: bold; color: #d9534f;">Gol Subiti</div>
       </div>
-    <table><tr><th>Gol</th><th>Qtà</th><th>% Uscita</th></tr>`;
+      <table>
+        <tr><th>Gol</th><th>Qtà</th><th>% Uscita</th></tr>
+    `;
+
     for (const key in concededCounts) {
         const count = concededCounts[key];
         const percent = ((count / total) * 100).toFixed(1) + '%';
-        tableHtml += `<tr><td>${key}</td><td>${count}</td><td>${percent}</td></tr>`;
+        html += `<tr><td>${key}</td><td>${count}</td><td>${percent}</td></tr>`;
     }
-    tableHtml += `<tr><td><strong>TOT.</strong></td><td><strong>${total}</strong></td><td><strong>100%</strong></td></tr></table>`;
-    targetElement.insertAdjacentHTML('beforeend', tableHtml);
+
+    html += `<tr><td><strong>TOT.</strong></td><td><strong>${total}</strong></td><td><strong>100%</strong></td></tr></table>`;
+
+    targetElement.insertAdjacentHTML('beforeend', html);
+
 }
+
 
 function displayTotalGoalsSummary(counts, teamName, targetElement) {
     const total = Object.values(counts).reduce((a, b) => a + b, 0);
     if (total === 0) return;
+
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-      <div style="text-align: center; margin-bottom: 10px;">
-        <div style="font-size: 1.4em; font-weight: bold; color: #007bff;">Distribuzione Gol Totali</div>
+      <div style="text-align: center; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
+        <div style="font-size: 1.4em; font-weight: bold; color: #007bff;">Gol Totali</div>
       </div>
-      <table><tr><th>Gol Totali</th><th>Qtà</th><th>% Uscita</th></tr>`;
+      <table>
+        <tr><th>Gol Totali</th><th>Qtà</th><th>% Uscita</th></tr>
+    `;
+
     for (const key in counts) {
         const count = counts[key];
         const percent = ((count / total) * 100).toFixed(1) + '%';
         html += `<tr><td>${key}</td><td>${count}</td><td>${percent}</td></tr>`;
     }
+
     html += `<tr><td><strong>TOT.</strong></td><td><strong>${total}</strong></td><td><strong>100%</strong></td></tr></table>`;
+
     targetElement.insertAdjacentHTML('beforeend', html);
 }
 
-function displayExactScoresGrid(scoreMap, targetElement) {
+
+function displayExactScoresGrid(scoreMap, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
+    let html = `
+        <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+            ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
+            <div style="font-size: 1.4em; font-weight: bold; color: #8a2be2;">Risultati Esatti</div>
+        </div>
+        <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
+    `;
+
     const desiredScores = [
         "1-0", "0-0", "0-1", "0-4", "4-0", "2-5",
         "2-0", "1-1", "0-2", "1-4", "4-1", "3-5",
@@ -736,14 +788,8 @@ function displayExactScoresGrid(scoreMap, targetElement) {
         "3-1", "4-4", "1-3", "0-5", "5-0", "5-3",
         "3-2", "5-5", "2-3", "1-5", "5-1", "5-4"
     ];
-    const perRow = 6;
-    let html = `
-        <div style="text-align: center; margin-top: 30px;">
-            <div style="font-size: 1.4em; font-weight: bold; color: #8a2be2;">Distribuzione Risultati Esatti</div>
-        </div>
-        <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
-    `;
 
+    const perRow = 6;
     for (let i = 0; i < desiredScores.length; i += perRow) {
         const row = desiredScores.slice(i, i + perRow);
 
@@ -770,9 +816,14 @@ function displayExactScoresGrid(scoreMap, targetElement) {
 
 
 
+
+
 function displayUnderOver05Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #28a745;">Under/Over 0.5 Totali</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -782,12 +833,39 @@ function displayUnderOver05Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+
+
+
+// 🧠 Salvataggio nella variabile globale
+if (!window.matchInsights) window.matchInsights = {};
+if (!window.matchInsights.underOver05Summary) {
+  window.matchInsights.underOver05Summary = {
+    team1: null,
+    team2: null
+  };
 }
 
+const isFirstTeam = teamName === window.loadedTeamNames.teamName1;
+const key = isFirstTeam ? 'team1' : 'team2';
+
+window.matchInsights.underOver05Summary[key] = {
+  name: teamName,
+  stats
+};
+
+}
+
+
+
+
 function displayUnderOver15Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #ff6600;">Under/Over 1.5 Totali</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -797,12 +875,31 @@ function displayUnderOver15Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+// 🧠 Salvataggio nella variabile globale
+if (!window.matchInsights.underOver15Summary) {
+    window.matchInsights.underOver15Summary = { team1: null, team2: null };
+  }
+  
+  const isFirstTeam = teamName === window.loadedTeamNames.teamName1;
+  const key = isFirstTeam ? 'team1' : 'team2';
+  
+  window.matchInsights.underOver15Summary[key] = {
+    name: teamName,
+    stats
+  };
+  
 }
 
+
+
 function displayUnderOver25Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #dc3545;">Under/Over 2.5 Totali</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -812,12 +909,30 @@ function displayUnderOver25Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+
+
+    if (!window.matchInsights.underOver25Summary) {
+        window.matchInsights.underOver25Summary = { team1: null, team2: null };
+      }
+      
+      const isFirstTeam = teamName === window.loadedTeamNames.teamName1;
+      const key = isFirstTeam ? 'team1' : 'team2';
+      
+      window.matchInsights.underOver25Summary[key] = {
+        name: teamName,
+        stats
+      };
 }
 
+
 function displayUnderOver35Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #6610f2;">Under/Over 3.5 Totali</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -827,13 +942,31 @@ function displayUnderOver35Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+
+    if (!window.matchInsights.underOver35Summary) {
+        window.matchInsights.underOver35Summary = { team1: null, team2: null };
+      }
+      
+      const isFirstTeam = teamName === window.loadedTeamNames.teamName1;
+      const key = isFirstTeam ? 'team1' : 'team2';
+      
+      window.matchInsights.underOver35Summary[key] = {
+        name: teamName,
+        stats
+      };
+
 }
 
 
+
 function displayGoalNoGoalTable(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 20px;">
+    <div style="text-align: center; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #ff5733;">Gol / No Gol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -843,12 +976,62 @@ function displayGoalNoGoalTable(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+
+    if (!window.matchInsights.goalNoGoalSummary) {
+        window.matchInsights.goalNoGoalSummary = { team1: null, team2: null };
+      }
+      
+      const isFirstTeam = teamName === window.loadedTeamNames.teamName1;
+      const key = isFirstTeam ? 'team1' : 'team2';
+      
+      window.matchInsights.goalNoGoalSummary[key] = {
+        name: teamName,
+        stats
+      };
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function displayDoubleChanceUnderOver15Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 25px;">
+    <div style="text-align: center; margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #17a2b8;">Doppia Chance + Under/Over 1.5</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -862,12 +1045,18 @@ function displayDoubleChanceUnderOver15Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+
 }
 
+
 function displayDoubleChanceUnderOver25Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 25px;">
+    <div style="text-align: center; margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #007bff;">Doppia Chance + Under/Over 2.5</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -881,12 +1070,18 @@ function displayDoubleChanceUnderOver25Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
+
 }
 
+
 function displayDoubleChanceUnderOver35Table(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 25px;">
+    <div style="text-align: center; margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #6f42c1;">Doppia Chance + Under/Over 3.5</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -900,13 +1095,18 @@ function displayDoubleChanceUnderOver35Table(stats, teamName, targetElement) {
         <tr><td><strong>TOT.</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
     </table>
     `;
+
     targetElement.insertAdjacentHTML('beforeend', html);
 }
 
 
+
 function displayDoubleChanceGoalNoGoalTable(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 25px;">
+    <div style="text-align: center; margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #dc3545;">Doppia Chance + Gol / No Gol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -924,9 +1124,13 @@ function displayDoubleChanceGoalNoGoalTable(stats, teamName, targetElement) {
 }
 
 
+
 function displayFixedResultUnderOverTable(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #20c997;">Fisso + Under/Over (1.5 - 3.5)</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -946,9 +1150,13 @@ function displayFixedResultUnderOverTable(stats, teamName, targetElement) {
     targetElement.insertAdjacentHTML('beforeend', html);
 }
 
+
 function displayFixedResultGoalNoGoalTable(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #fd7e14;">Fisso + Gol / No Gol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -966,9 +1174,13 @@ function displayFixedResultGoalNoGoalTable(stats, teamName, targetElement) {
 }
 
 
+
 function displayTripleComboTable(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #7952b3;">Doppia Chance + U/O 1.5 + Gol/NoGol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -989,9 +1201,13 @@ function displayTripleComboTable(stats, teamName, targetElement) {
 }
 
 
+
 function displayTripleComboTable25(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #0d6efd;">Doppia Chance + U/O 2.5 + Gol/NoGol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1011,9 +1227,13 @@ function displayTripleComboTable25(stats, teamName, targetElement) {
     targetElement.insertAdjacentHTML('beforeend', html);
 }
 
+
 function displayTripleComboTable35(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #198754;">Doppia Chance + U/O 3.5 + Gol/NoGol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1034,9 +1254,13 @@ function displayTripleComboTable35(stats, teamName, targetElement) {
 }
 
 
+
 function displayFixedComboTable15(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #e83e8c;">Fisso + U/O 1.5 + Gol/NoGol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1057,9 +1281,13 @@ function displayFixedComboTable15(stats, teamName, targetElement) {
 }
 
 
+
 function displayFixedComboTable25(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #0dcaf0;">Fisso + U/O 2.5 + Gol/NoGol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1079,9 +1307,13 @@ function displayFixedComboTable25(stats, teamName, targetElement) {
     targetElement.insertAdjacentHTML('beforeend', html);
 }
 
+
 function displayFixedComboTable35(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #198754;">Fisso + U/O 3.5 + Gol/NoGol</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1101,9 +1333,13 @@ function displayFixedComboTable35(stats, teamName, targetElement) {
     targetElement.insertAdjacentHTML('beforeend', html);
 }
 
+
 function displayEvenOddTable(stats, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #6610f2;">Pari / Dispari</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1115,7 +1351,6 @@ function displayEvenOddTable(stats, teamName, targetElement) {
         <tr><td>Ospite</td><td>Pari</td><td>${stats.awayEven.count}</td><td>${stats.awayEven.percent}</td></tr>
         <tr><td>Ospite</td><td>Dispari</td><td>${stats.awayOdd.count}</td><td>${stats.awayOdd.percent}</td></tr>
         <tr><td><strong>TOT.</strong></td><td><strong>P/D</strong></td><td><strong>${stats.total}</strong></td><td><strong>100%</strong></td></tr>
-
     </table>
     `;
     targetElement.insertAdjacentHTML('beforeend', html);
@@ -1123,9 +1358,13 @@ function displayEvenOddTable(stats, teamName, targetElement) {
 
 
 
+
 function displayExactScoreGapsTable(gaps, teamName, targetElement) {
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+
     let html = `
-    <div style="text-align: center; margin-top: 30px;">
+    <div style="text-align: center; margin-top: 30px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
         <div style="font-size: 1.3em; font-weight: bold; color: #dc3545;">Ritardo di risultato</div>
     </div>
     <table style="margin: 10px auto; border-collapse: collapse; font-size: 0.95em;">
@@ -1139,6 +1378,7 @@ function displayExactScoreGapsTable(gaps, teamName, targetElement) {
     html += `</table>`;
     targetElement.insertAdjacentHTML('beforeend', html);
 }
+
 
 
 
@@ -1210,29 +1450,29 @@ function calculateMatchResults(matches, teamName) {
     return { win, draw, loss };
 }
 
-function displayMatchResultSummary(results, teamName, targetElement) {
-    const total = results.win + results.draw + results.loss;
+function displayMatchResultSummary(stats, teamName, targetElement) {
+    const total = stats.win + stats.draw + stats.loss;
     if (total === 0) return;
-
-    const toPercent = (val) => ((val / total) * 100).toFixed(1) + "%";
-
+  
+    const logoSrc = teamName === window.loadedTeamNames.teamName1 ? logoImage1?.src : logoImage2?.src;
+  
     let html = `
-    <div style="text-align: center; margin-bottom: 10px;">
-        <div style="font-size: 1.4em; font-weight: bold; color: #333;">Riepilogo Risultati</div>
-    </div>
-    <table style="margin: 0 auto; border-collapse: collapse; font-size: 0.95em; width: 80%; margin-bottom: 30px;">
-        <tr><th>Risultato</th><th>Qtà</th><th>% Uscita</th></tr>
-        <tr><td>Vittorie</td><td>${results.win}</td><td>${toPercent(results.win)}</td></tr>
-        <tr><td>Pareggi</td><td>${results.draw}</td><td>${toPercent(results.draw)}</td></tr>
-        <tr><td>Sconfitte</td><td>${results.loss}</td><td>${toPercent(results.loss)}</td></tr>
+      <div style="text-align: center; margin-top: 25px; display: flex; justify-content: center; align-items: center; gap: 10px;">
+        ${logoSrc ? `<img src="${logoSrc}" alt="logo ${teamName}" style="height: 40px;">` : ''}
+        <div style="font-size: 1.3em; font-weight: bold; color: #444;">Riepilogo Risultati</div>
+      </div>
+      <table class="results-summary-table">
+        <tr><th>Risultato</th><th>Qtà</th><th>%</th></tr>
+        <tr><td>VITTORIE</td><td>${stats.win}</td><td>${((stats.win / total) * 100).toFixed(1)}%</td></tr>
+        <tr><td>PAREGGI</td><td>${stats.draw}</td><td>${((stats.draw / total) * 100).toFixed(1)}%</td></tr>
+        <tr><td>SCONFITTE</td><td>${stats.loss}</td><td>${((stats.loss / total) * 100).toFixed(1)}%</td></tr>
         <tr><td><strong>TOT.</strong></td><td><strong>${total}</strong></td><td><strong>100%</strong></td></tr>
-    </table>
-`;
-
-
-    targetElement.insertAdjacentHTML('afterbegin', html);
-}
-
+      </table>
+    `;
+  
+    targetElement.insertAdjacentHTML('beforeend', html);
+  }
+  
 
 
 function getUnderOver05Summary(matches) {
@@ -2060,4 +2300,8 @@ function getExactScoreGaps(matches, resultSet) {
 
     return result;
 }
+
+
+
+
 
