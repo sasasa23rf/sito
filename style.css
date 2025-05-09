@@ -35,8 +35,8 @@ body {
 
 /* 🟩 Titolo Principale */
 h1 {
-    margin-top: 10px;
-    margin-bottom: 30px;
+    margin-top: 0px;
+    margin-bottom: 10px;
     text-align: center;
     font-family: 'Orbitron', sans-serif;
     font-size: 4rem;
@@ -61,7 +61,7 @@ h1 {
     /* ... (proprietà esistenti come display: flex, align-items: flex-start, ecc.) ... */
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start;
+    align-items: stretch;
     justify-content: space-around;
     gap: 20px;
 
@@ -118,6 +118,7 @@ h1 {
     text-transform: uppercase;
     letter-spacing: 1px;
     min-width: 200px;
+    margin-bottom: 15px;
   }
   
   .middle-column .button-area button:hover {
@@ -300,6 +301,7 @@ label {
     font-size: 1rem; /* Usa rem */
 }
 
+
 .goal-summary th, .goal-summary td {
     border: 1px solid #ddd;
     padding: 10px; /* Padding aumentato */
@@ -412,7 +414,7 @@ label {
     }
 
     h1 {
-        margin-top: 10px;
+        margin-top: 0px;
         margin-bottom: 30px;
         text-align: center;
         font-size: 3rem;
@@ -725,34 +727,41 @@ label {
 
 
 
-
-
-  /* Contenitori per gli annunci laterali */
-  .ads-container {
-    position: fixed;           /* Fissiamo il contenitore degli annunci ai lati della pagina */
-    top: 50%;                  /* Posizioniamo gli annunci verticalmente al centro della pagina */
-    width: 300px;              /* Larghezza degli annunci */
-    height: auto;              /* Altezza automatica in base al contenuto dell'annuncio */
-    min-height: 100px;         /* Altezza minima per il contenitore */
-    background-color: transparent; /* Rende il contenitore invisibile */
-    z-index: 1000;             /* Assicura che gli annunci siano sopra altri contenuti */
+/* Contenitori per gli annunci laterali */
+/* Contenitori per gli annunci laterali */
+  /* Contenitori per gli annunci laterali */ /* Contenitori per gli annunci laterali */ /* Contenitori per gli annunci laterali */
+/* Annuncio posizionato sotto tutto */
+.ads-container.below {
+  margin-top: 30px; /* Aggiunge spazio sopra l'annuncio */
+  text-align: center; /* Centra l'annuncio orizzontalmente */
+  padding: 20px 0;
+  background-color: #f4f4f4; /* Imposta uno sfondo chiaro per l'area dell'annuncio */
+  border-radius: 8px;
+  position: relative;
+  bottom: 0; /* Posiziona l'annuncio in fondo alla pagina */
+  width: 100%; /* Si espande per tutta la larghezza */
 }
 
-/* Annuncio a sinistra */
-.ads-container.left {
-    left: 0;                   /* Posiziona il contenitore a sinistra */
-    transform: translateY(-50%);  /* Centra verticalmente */
-}
+/*fine    Contenitori per gli annunci laterali */
+/*fine    Contenitori per gli annunci laterali *//*fine    Contenitori per gli annunci laterali *//*fine    Contenitori per gli annunci laterali *//*fine    Contenitori per gli annunci laterali */
 
-/* Annuncio a destra */
-.ads-container.right {
-    right: 0;                  /* Posiziona il contenitore a destra */
-    transform: translateY(-50%);  /* Centra verticalmente */
-}
 
-/* Impostazioni degli annunci */
-.adsbygoogle {
-    width: 100%;               /* Ogni annuncio occupa tutta la larghezza del contenitore */
-    height: auto;              /* Altezza automatica */
-}
 
+  
+.search-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100%;
+  }
+
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  .team-buttons {
+    flex-direction: column;
+  }
+}
