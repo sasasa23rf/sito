@@ -33,6 +33,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const team2NameDisplay = document.getElementById('team-name-2');
    
 document.getElementById('view-button').addEventListener('click', () => {
+
+
+
+
   const { teamName1, teamName2 } = window.loadedTeamNames;
   const data = window.loadedTeamData;
 
@@ -48,8 +52,8 @@ document.getElementById('view-button').addEventListener('click', () => {
   document.getElementById('team-name-2').style.display = 'block';
 
   document.getElementById('view-button').style.display = 'none';
-  document.getElementById('search-button').style.display = 'inline-block';
-  document.getElementById('search-button').disabled = true;
+document.getElementById('search-button').style.display = 'none'; // 🔥 Nasconde definitivamente ESAMINA
+
 
 
 
@@ -307,7 +311,9 @@ window.matchInsights.recentMatches.team2 = data.team2Matches.slice(0, 50);
       document.getElementById('standings-button-1').style.display = 'none';
       document.getElementById('standings-button-2').style.display = 'none';
       document.getElementById('ai-result-box').innerHTML = '';
+      document.getElementById("search-button").style.display = "inline-block";
 
+     
 
 
 
@@ -499,6 +505,8 @@ document.getElementById('team-name-2').textContent = teamName2;
 document.getElementById('standings-button-1').style.display = 'none';
 document.getElementById('standings-button-2').style.display = 'none';
 document.getElementById('ai-result-box').innerHTML = '';
+document.getElementById("search-button").style.display = "inline-block";
+
 
 
 
@@ -2336,12 +2344,19 @@ function estraiRisultatiGemini(text) {
 const attachVisualizzaAIListener = () => {
   const visualizzaBtn = Array.from(document.querySelectorAll('button'))
     .find(btn => btn.textContent.trim().toUpperCase() === 'VISUALIZZA');
+    
+
 
   if (!visualizzaBtn || visualizzaBtn.dataset.aiAttached === 'true') return;
+  
+
+  
+
 
   visualizzaBtn.dataset.aiAttached = 'true';
 
   visualizzaBtn.addEventListener('click', () => {
+
     setTimeout(() => {
       const { teamName1, teamName2 } = window.loadedTeamNames || {};
       const {
@@ -2445,7 +2460,7 @@ incoerente. Quindi fai una buona analisi, si precisa.
   aiBox.style.color = '#333';
 
   aiBox.innerHTML = `
-  <h2 style="text-align:center; color:#e65100;">🧠 Risposta AI</h2>
+  <h2 style="text-align:center; font-size: 30px color:#e65100;">⚽Risposta AI⚽</h2>
   ${tabella}
   <details style="display:none;">
     <summary>Prompt</summary>
@@ -2459,6 +2474,8 @@ incoerente. Quindi fai una buona analisi, si precisa.
 boxTarget.innerHTML = ''; // pulisci eventuali risposte precedenti
 boxTarget.appendChild(aiBox);
 document.getElementById('ai-loader').style.display = 'none';
+
+
 
 
 })
